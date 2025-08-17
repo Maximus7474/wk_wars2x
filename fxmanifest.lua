@@ -63,8 +63,4 @@ server_export "TogglePlateLock"
 
 -- Run the client scripts
 client_script "config.lua"
-client_script "cl_utils.lua"
-client_script "cl_player.lua"
-client_script "cl_radar.lua"
-client_script "cl_plate_reader.lua"
-client_script "cl_sync.lua"
+client_script "client/cl_*.lua"
