@@ -56,9 +56,15 @@ files {
 ui_page "nui/radar.html"
 
 -- Run the server scripts
-server_scripts "server/sv_*.lua"
+server_scripts {
+	"@oxmysql/lib/MySQL.lua",
+	"server/sv_*.lua"
+}
+
 server_export "TogglePlateLock"
 
 -- Run the client scripts
-client_script "config.lua"
-client_script "client/cl_*.lua"
+client_scripts {
+	"config.lua",
+	"client/cl_*.lua"
+}
