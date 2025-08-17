@@ -1,3 +1,17 @@
+--[[ Handle lb-tablet status, ignoring the requests if not running ]]
+local lbtabletState = GetResourceState('lb-tablet') --[[ @as "missing" | "started" | "starting" | "stopped" | "stopping" | "uninitialized" | "unknown" ]]
+
+local function tabletStarted()
+    return lbtabletState == "started" or lbtabletState == "starting"
+end
+
+AddEventHandler('onResourceStart', function (resource)
+    if (resource == "lb-tablet") then lbtabletState = "started" end
+end)
+
+AddEventHandler('onResourceStop', function (resource)
+    if (resource == "lb-tablet") then lbtabletState = "stopped" end
+end)
 local activeWarrantStatuses = {
     "active"
 }
@@ -14,6 +28,8 @@ searchParams = table.concat(activeWarrantStatuses, ' AND ')
 ---@param index number plate texture index
 RegisterNetEvent('wk:onPlateScanned', function (cam, plate, index)
     local src = source
+
+    if (not tabletStarted()) then return end
 
     local response = MySQL.single.await(([[
         SELECT 1
