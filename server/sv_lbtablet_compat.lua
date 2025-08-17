@@ -55,6 +55,7 @@ RegisterNetEvent('wk:onPlateScanned', function (cam, plate, index)
         FROM `lbtablet_police_warrants`
         WHERE
                 `linked_profile_id` = ?
+            AND `linked_profile_type` = 'vehicle'
             AND %s
     ]]):format(searchParams), {
         plate
