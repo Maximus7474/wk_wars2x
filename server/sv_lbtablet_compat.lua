@@ -41,6 +41,9 @@ for i = 1, #activeWarrantStatuses do
 end
 searchParams = table.concat(activeWarrantStatuses, ' AND ')
 
+local cache = {}
+local CACHE_REFRESH_DURATION = 30 * 60 * 1000
+
 ---Server handler to check if the tablet has an active warrant
 ---@param cam string ALPR camera index
 ---@param plate string license text
@@ -49,6 +52,19 @@ RegisterNetEvent('wk:onPlateScanned', function (cam, plate, index)
     local src = source
 
     if (not tabletStarted()) then return end
+
+    local currentTime = os.time()
+
+    if (cache[plate] and cache[plate].expires > currentTime) then
+        if cache[plate].warrant then
+            TriggerClientEvent(
+                "wk:togglePlateLock", src,
+                cam, false, true
+            )
+        end
+
+        return
+    end
 
     local response = MySQL.single.await(([[
         SELECT 1
@@ -60,6 +76,11 @@ RegisterNetEvent('wk:onPlateScanned', function (cam, plate, index)
     ]]):format(searchParams), {
         plate
     })
+
+    cache[plate] = {
+        warrant = response ~= nil,
+        expires = currentTime + CACHE_REFRESH_DURATION,
+    }
 
     if (not response) then return end
 
